@@ -6,11 +6,11 @@ class Graph:
         "normal": 1.0,
         "blocked": float("inf"),
         "restricted": 2.0,
-        "priority": 1.0,
+        "priority": 0.9,
     }
 
     def __init__(self, config: MapConfig) -> None:
-        self._hubs: dict[str, Hub] = config.hubs
+        self._hubs: dict[str, Hub] = dict(config.hubs)
         self._adj: dict[str, list[tuple[str, Connection]]] = {
             name: [] for name in config.hubs
         }
@@ -40,6 +40,3 @@ class Graph:
 
     def is_blocked(self, name: str) -> bool:
         return self._hubs[name].zone == "blocked"
-
-    def is_priority(self, name: str) -> bool:
-        return self._hubs[name].zone == "priority"

@@ -1,6 +1,6 @@
 from typing import Any
 
-from models import Connection, MapConfig, Hub
+from models import Connection, Hub, MapConfig
 
 
 class ConfigSyntaxError(Exception):
@@ -110,7 +110,9 @@ class ConfigParser:
         used_hubs: set[str] = set()
 
         for lineno, raw in enumerate(self._loads_file(path), start=1):
-            line = raw.split("#")[0].strip()
+            if raw.startswith("#"):
+                continue
+            line = raw.split(" #")[0].strip()
             if not line:
                 continue
 

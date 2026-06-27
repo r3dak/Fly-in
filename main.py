@@ -1,16 +1,18 @@
-import heapq
+from queue import PriorityQueue
 
 from config_parser import ConfigParser, ConfigSyntaxError
 from graph import Graph
 
 
 def dijkstra(graph: Graph, start: str, goal: str) -> list[str]:
-    priority_queue: list[tuple[float, str]] = [(0.0, start)]
+    priority_queue: PriorityQueue[tuple[float, str]] = PriorityQueue()
+    priority_queue.put((0.0, start))
+
     parent: dict[str, str | None] = {start: None}
     best_cost: dict[str, float] = {start: 0.0}
 
-    while priority_queue:
-        curr_cost, curr = heapq.heappop(priority_queue)
+    while not priority_queue.empty():
+        curr_cost, curr = priority_queue.get()
 
         if curr_cost > best_cost[curr]:
             continue
@@ -22,29 +24,30 @@ def dijkstra(graph: Graph, start: str, goal: str) -> list[str]:
             if graph.is_blocked(neighbor):
                 continue
 
-            new_cost = curr_cost + graph.move_cost(neighbor)
-
-            if new_cost < best_cost.get(neighbor, float("inf")):
-                best_cost[neighbor] = new_cost
+            next_cost = curr_cost + graph.move_cost(neighbor)
+            if next_cost < best_cost.get(neighbor, float("inf")):
+                best_cost[neighbor] = next_cost
                 parent[neighbor] = curr
-                heapq.heappush(priority_queue, (new_cost, neighbor))
+                priority_queue.put((next_cost, neighbor))
 
     if goal not in parent:
         return []
 
     path: list[str] = []
-    hub: str | None = goal
 
-    while hub is not None:
-        path.append(hub)
-        hub = parent[hub]
+    curr_hub: str | None = goal
+    while curr_hub:
+        path.append(curr_hub)
+        curr_hub = parent[curr_hub]
 
     return path[::-1]
 
 
 if __name__ == "__main__":
     try:
-        config = ConfigParser().parse("./maps/medium/01_dead_end_trap.txt")
+        config = ConfigParser().parse(
+            "./maps/challenger/01_the_impossible_dream.txt"
+        )
     except FileNotFoundError as e:
         print(f"[ERROR]: File not found — {e.filename}")
         exit(1)
